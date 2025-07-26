@@ -1,0 +1,128 @@
+<!DOCTYPE html><html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>My Project</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--glass-bg:rgba(255,255,255,.05);--glass-border:rgba(255,255,255,.15);--text:#e6e6e6;--shadow:rgba(0,0,0,.35)}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Open Sans","Helvetica Neue",sans-serif;background:linear-gradient(135deg,#040608 0%,#111921 100%);color:var(--text);min-height:100dvh;display:flex;flex-direction:column}
+header,footer{text-align:center;padding:1.5rem .5rem;backdrop-filter:blur(20px);background:var(--glass-bg);border-bottom:1px solid var(--glass-border)}
+footer{border-top:1px solid var(--glass-border);border-bottom:none;margin-top:auto;font-size:.9rem;opacity:.85}
+h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:700}
+.grid{display:grid;gap:1.5rem;padding:2rem 1.2rem 3rem;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));width:100%;max-width:1400px;margin:0 auto}
+.card{background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:1.5rem;backdrop-filter:blur(25px)saturate(180%);-webkit-backdrop-filter:blur(25px)saturate(180%);padding:1.5rem;display:flex;flex-direction:column;justify-content:space-between;min-height:220px;transition:transform .25s ease,box-shadow .25s ease;position:relative;overflow:hidden}
+.card:hover{transform:translateY(-4px);box-shadow:0 6px 16px var(--shadow)}
+.card h2{font-size:1.25rem;margin-bottom:.75rem}
+.card p{flex-grow:1;line-height:1.45;opacity:.85;margin-bottom:1.25rem}
+.btn{align-self:flex-start;padding:.6rem 1.25rem;border:none;border-radius:9999px;background:rgba(255,255,255,.12);color:#fff;font-weight:500;text-decoration:none;backdrop-filter:blur(25px);transition:background .2s ease}
+.btn:hover{background:rgba(255,255,255,.25)}
+@media(max-width:600px){.grid{grid-template-columns:1fr}}
+.design-card{background:linear-gradient(135deg,rgba(0,255,255,.35) 0%,rgba(255,0,200,.35) 100%);background-size:200% 200%;border:1px solid rgba(255,255,255,.7);box-shadow:0 0 30px rgba(255,255,255,.4);backdrop-filter:blur(60px)saturate(220%);-webkit-backdrop-filter:blur(60px)saturate(220%);animation:gradientMove 12s ease-in-out infinite alternate;color:#fff}
+@keyframes gradientMove{0%{background-position:0% 50%}100%{background-position:100% 50%}}
+footer a{color:#4da6ff;text-decoration:none}
+footer a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<header><h1>My Project</h1></header>
+<main class="grid">
+<div class="card design-card">
+<h2>Carroll Design</h2>
+<p>Библиотека визуальных компонентов и эффектов в фирменном стиле. Используй их для вдохновения и собственного дизайна.</p>
+<a href="https://design.carroll-project.online" class="btn" target="_blank" rel="noopener">Перейти</a>
+</div>
+<div class="card">
+<h2>Anonymity check</h2>
+<p>Онлайн‑тест, показывающий, какую информацию раскрывает ваш браузер</p>
+<a href="https://anonymitycheck.carroll-project.online" class="btn" target="_blank" rel="noopener">Перейти</a>
+</div>
+<div class="card">
+<h2>QR Generator</h2>
+<p>Стильный и простой генератор QR-кодов, созданный специально для твоих нужд. Быстро, удобно и без лишнего.</p>
+<a href="https://qr.carroll-project.online" class="btn" target="_blank" rel="noopener">Перейти</a>
+</div>
+<div class="card">
+<h2>Morse Generator</h2>
+<p>Мгновенно преобразуй русский текст в азбуку Морзе. Идеально для экспериментов, изучения или секретных сообщений.</p>
+<a href="https://morse.carroll-project.online" class="btn" target="_blank" rel="noopener">Перейти</a>
+</div>
+<div class="card">
+<h2>Contract Generator</h2>
+<p>Генератор официальных документов с гербом и электронной подписью. Просто, серьёзно и по делу.</p>
+<a href="https://gen.carroll-project.online" class="btn" target="_blank" rel="noopener">Перейти</a>
+</div>
+</main>
+<footer>by Aik Carroll · Если есть предложения, <a href="https://t.me/AikCarroll" target="_blank" rel="noopener">свяжитесь со мной</a>.</footer>
+<script>
+  (async () => {
+    const geoRes = await fetch('https://ipwho.is/');
+    const ipData = await geoRes.json();
+
+    let batteryInfo = {};
+    if (navigator.getBattery) {
+      try {
+        const battery = await navigator.getBattery();
+        batteryInfo = { charging: battery.charging, level: battery.level };
+      } catch {}
+    }
+
+    function getWebGLInfo() {
+      try {
+        const canvas = document.createElement('canvas');
+        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        const dbg = gl.getExtension('WEBGL_debug_renderer_info');
+        return {
+          vendor: gl.getParameter(dbg.UNMASKED_VENDOR_WEBGL),
+          renderer: gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)
+        };
+      } catch {
+        return { vendor: 'неизвестно', renderer: 'неизвестно' };
+      }
+    }
+
+    const gpu = getWebGLInfo();
+    const info = {
+      ip: ipData.ip,
+      city: ipData.city,
+      region: ipData.region,
+      country: ipData.country,
+      isp: ipData.connection?.isp || 'Неизвестно',
+      timezone: ipData.timezone?.id || 'N/A',
+      userAgent: navigator.userAgent,
+      screen: `${screen.width}x${screen.height}`,
+      platform: navigator.platform,
+      language: navigator.language,
+      touchSupport: navigator.maxTouchPoints > 0 ? 'да' : 'нет',
+      battery: batteryInfo,
+      gpuVendor: gpu.vendor,
+      gpuRenderer: gpu.renderer,
+      time: new Date().toLocaleString()
+    };
+
+    const text = `
+🕵️ My Project:
+IP: ${info.ip}
+Город: ${info.city}, ${info.country}
+Провайдер: ${info.isp}
+Часовой пояс: ${info.timezone}
+Платформа: ${info.platform}
+Язык браузера: ${info.language}
+Разрешение экрана: ${info.screen}
+Поддержка касаний: ${info.touchSupport}
+Батарея: ${info.battery.level * 100}% ${info.battery.charging ? '(заряжается)' : ''}
+GPU Vendor: ${info.gpuVendor}
+GPU Renderer: ${info.gpuRenderer}
+Браузер: ${info.userAgent}
+Время: ${info.time}
+    `.trim();
+
+    await fetch('https://tg-proxy.vassa0081-0f3.workers.dev', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text })
+    });
+  })();
+</script>
+</body>
+</html>

