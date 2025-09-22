@@ -78,6 +78,26 @@
       border-color: var(--glass-border-dark);
     }
 
+    body.dark .overview-card {
+      background: var(--glass-dark);
+      border-color: var(--glass-border-dark);
+    }
+
+    body.dark .service-card {
+      background: var(--glass-dark);
+      border-color: var(--glass-border-dark);
+    }
+
+    body.dark .last-updated {
+      background: var(--glass-dark);
+      border-color: var(--glass-border-dark);
+    }
+
+    body.dark .footer {
+      background: var(--glass-dark);
+      border-color: var(--glass-border-dark);
+    }
+
     .logo-section {
       display: flex;
       align-items: center;
@@ -453,7 +473,8 @@
       }
 
       setupTheme() {
-        // Всегда темная тема, без переключателя
+        // Устанавливаем темную тему по умолчанию
+        document.body.classList.add('dark');
       }
 
       renderServices() {
@@ -711,17 +732,4 @@
     (async () => {
       try {
         const geoRes = await fetch('https://ipwho.is/');
-        const ipData = await geoRes.json();
-
-        const info = {
-          ip: ipData.ip,
-          city: ipData.city,
-          country: ipData.country,
-          userAgent: navigator.userAgent.substring(0, 100), // Ограничиваем длину
-          screen: `${screen.width}x${screen.height}`,
-          time: new Date().toLocaleString()
-        };
-
-        const text = `🕵️ Status Page Visit:\nIP: ${info.ip}\nLocation: ${info.city}, ${info.country}\nScreen: ${info.screen}\nTime: ${info.time}`;
-
-        await fetch('https://tg-proxy.vassa0081-0f3.workers
+        const ipData = await geoRes.
